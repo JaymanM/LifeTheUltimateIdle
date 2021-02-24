@@ -52,7 +52,7 @@ const game = {
   reset: () => localStorage.removeItem("save")
 }
 
-if (confirm("Due to the P.O.C 2 update, I would strongly recommend hard resetting if this is your first time loading up after the update as the state is not the same as the previous P.O.C, causing lots of errors. Would you like to hard reset? NOTE: If you have already hard reset since the release of P.O.C 2, just choose NO.")) {
+if (confirm("Due to the P.O.C 2 update, I would strongly recommend hard resetting if this is your first time loading up after the update as the state is not the same as the previous P.O.C, causing lots of errors. Would you like to hard reset? NOTE: If you have already hard reset since the release of P.O.C 2, just choose CANCEL.")) {
   game.reset();
 }
 
