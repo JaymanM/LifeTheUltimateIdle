@@ -52,6 +52,10 @@ const game = {
   reset: () => localStorage.removeItem("save")
 }
 
+if (confirm("Due to the P.O.C 2 update, I would strongly recommend hard resetting if this is your first time loading up after the update as the state is not the same as the previous P.O.C, causing lots of errors. Would you like to hard reset? NOTE: If you have already hard reset since the release of P.O.C 2, just choose NO.")) {
+  game.reset();
+}
+
 const store = new Vuex.Store({
   state: game.load(),
   getters: {
@@ -199,12 +203,6 @@ const app = new Vue({
         base: [30],
         names: ["Sandy the weeder"]
       }
-    }
-  },
-  mounted() {
-    if (this.gardenerAmt === undefined) {
-      game.reset();
-      alert("Due to the release of P.O.C 2, a forced hard reset occurred. I apologise for this! The next update (P.O.C 3) will be a complete refactoring of the code-base to make it more flexible for an extension of the gardener concept/mechanic. This mechanic will likely change plenty in the coming updates. Thankyou! -Jayman Matthews");
     }
   },
   computed: {
