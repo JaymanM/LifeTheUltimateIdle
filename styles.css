@@ -1,0 +1,138 @@
+* {
+  font-family: 'Share Tech Mono', monospace;
+  animation-name: fadeIn;
+  animation-duration: 1.5s;
+}
+
+button {
+  color: white;
+  background-color: black;
+  font-weight: bold;
+  border: 2px white;
+  border-radius: 10px;
+  height: 50px;
+  width: 110px;
+  user-select: none;
+  cursor: pointer;
+  outline: none;
+  margin: 5px;
+}
+
+.switch-button {
+  padding: 10px;
+  border-radius: 10px;
+  height: auto;
+  width: 250px;
+  max-width: 300px;
+  font-size: 14px;
+}
+
+.debt-info {
+  animation: straightShow;
+}
+
+.inline {
+  display: inline;
+}
+
+.inline-block {
+  display: inline-block;
+}
+
+.lawnmower-type {
+  padding: 10px;
+  border-radius: 10px;
+  height: auto;
+  width: 250px;
+  max-width: 300px;
+  font-size: 14px;
+}
+
+.job-type {
+  padding: 10px;
+  border-radius: 10px;
+  height: auto;
+  width: 250px;
+  max-width: 300px;
+  font-size: 14px;
+}
+
+.job-button .job-info {
+  display: none;
+}
+
+.job-button:hover .job-info {
+    display: inline-block;
+    animation-name: straightShow;
+}
+
+.job-button .job-name-salary {
+    display: inline-block;
+    animation-name: straightShow;
+}
+
+.job-button:hover .job-name-salary {
+  display: none;
+}
+
+.corded-button {
+  float: left;
+}
+
+.corded-button .corded-info {
+  display: none;
+}
+
+.corded-button:hover .corded-info {
+  display: inline-block;
+  animation-name: straightShow;
+}
+
+.corded-button .corded-name-price {
+  display: inline-block;
+  animation-name: straightShow;
+}
+
+.intern-button {
+  float: left;
+}
+
+.corded-button:hover .corded-name-price {
+  display: none;
+}
+
+.cordless-button .cordless-info {
+    display: none;
+}
+
+.cordless-button:hover .cordless-info {
+  display: inline-block;
+  animation-name: straightShow;
+}
+
+.cordless-button .cordless-name-price {
+  display: inline-block;
+  animation-name: straightShow;
+}
+
+.cordless-button:hover .cordless-name-price {
+    display: none;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0%;
+  }
+  100% {
+    opacity: 100%;
+  }
+}
+
+@keyframes straightShow {
+  0% {
+    opacity: 100%;
+  }
+  100% {
+    opacity: 100%;
+  }
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Life: The Ultimate Idle</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuex@3.6.2/dist/vuex.min.js"></script>
+    <script src="index.js" type="text/javascript" defer></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet" defer></link>
+  </head>
+  <body>
+    <div id="app">
+      There are <b style="font-size: 24px;">{{ weeds.toFixed(0) }}</b> weeds lying on the ground right now.
+      <div class="inline" v-if="unlocked.money"><br>
+        <span v-if="money >= 0">You currently have ${{ money.toFixed(2) }} in your bank account.</span>
+        <span v-else>You currently have a debt of ${{ (Math.abs(money)).toFixed(2) }} in your bank account.</span>
+      </div>
+      <span class="inline" v-if="lawnmower !== 'none'"><br><br>Your lawnmower is pulling <b style="font-size: 24px;">{{ formatWeedGain() }}</b> weeds from the garden every second.<br></span>
+      <span class="debt-info" v-if="money < 0">Your debt is demotivating, causing you to only mow 50% as many weeds.<br><br></span>
+      <span class="inline" v-if="lawnmower !== 'none'">You are paying ${{ bills.electricity.toFixed(2) }} per hour for electricity.<br><br></span>
+      <span class="inline" v-if="job !== 'none'">Your hourly salary while working is ${{ salary.toFixed(2) }}.<br><br></span>
+      <div v-if="action ==='weeding'"><button @click="pullWeed">Pull a weed!</button><br><br></div>
+      <div v-if="unlocked.lawnmowers">
+        <span v-if="lawnmower === 'none'">You should invest in a lawnmower! Here are the cheapest ones, take your pick.<br>Hover over each lawnmower to see their description.<br></span>
+        <span v-if="lawnmower == 'corded' && action === 'weeding'">You're using the Corded <b>{{ lawnmowerType.corded.name }}</b>!<br></span>
+        <span v-if="lawnmower == 'cordless' && action === 'weeding'">You're using the Battery-Fueled <b>{{ lawnmowerType.cordless.name }}</b>!<br></span>
+        <button class="corded-button lawnmower-type" v-if="lawnmower === 'none'" @click="chooseLawnmower(lawnmowerType, 'corded', 0)"><center><span class="corded-name-price"><b>The Corded {{ lawnmowerType.corded.name }}!</b><br><br>${{ lawnmowerType.corded.cost.toFixed(2) }}</span><span class="corded-info">{{ lawnmowerType.corded.info }}</span></center></button>
+        <button class="cordless-button lawnmower-type" v-if="lawnmower === 'none'" @click="chooseLawnmower(lawnmowerType, 'cordless', 1)"><center><span class="cordless-name-price"><b>The Battery-Fueled {{ lawnmowerType.cordless.name }}!</b><br><br>${{ lawnmowerType.cordless.cost.toFixed(2) }}</span><span class="cordless-info">{{ lawnmowerType.cordless.info }}</span></center></button>
+      </div>
+      <div v-if="unlocked.jobs && lawnmower !== 'none'">
+        <span v-if="job === 'none'"><br>It's time to choose a job. Your weed pulling skills gave you two job offers! Choose wisely.<br>Hover over each job to see their description.<br></span>
+        <span v-if="job === 'internship' && action === 'working'">You're working as an <b>{{ jobType.internship.position }}</b>.<br></span>
+        <span v-if="job === 'garbageMan' && action === 'working'">You're working as a <b>{{ jobType.garbageMan.position }}</b>.<br></span>
+        <button class="job-button job-type intern-button" v-if="job === 'none'" @click="chooseJob(jobType, 'internship', 0)"><center><span class="job-name-salary"><b>Work as an {{ jobType.internship.position }}!</b><br>Starting salary: ${{ jobType.internship.salary.base.toFixed(2) }}</span><span class="job-info">{{ jobType.internship.info }}</span></center></button>
+        <button class="job-button job-type" v-if="job === 'none'" @click="chooseJob(jobType, 'garbageMan', 1)"><center><span class="job-name-salary"><b>Work as a {{ jobType.garbageMan.position }}!</b><br>Starting salary: ${{ jobType.garbageMan.salary.base.toFixed(2) }}</span><span class="job-info">{{ jobType.garbageMan.info }}</span></center></button><br>
+        <button class="switch-button" v-if="job !== 'none'" @click="switchAction"><span v-if="action === 'weeding'"><b>Switch to working your job.</b></span><span v-else><b>Switch to weeding your garden.</b></span></button>
+      </div>
+    </div>
+  </body>
+</html>
