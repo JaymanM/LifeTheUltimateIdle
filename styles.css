@@ -76,6 +76,15 @@ button {
   display: none;
 }
 
+.gardener-button {
+  float: left;
+  padding: 10px;
+  border-radius: 10px;
+  height: auto;
+  width: 250px;
+  max-width: 300px;
+  font-size: 14px;
+}
 .corded-button {
   float: left;
 }

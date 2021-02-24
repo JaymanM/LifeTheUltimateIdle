@@ -25,18 +25,31 @@ const defaultPlayer = function() {
       unlocked: {
         money: false,
         lawnmowers: false,
-        jobs: false
+        jobs: false,
+        gardeners: false
       }
     },
     action: {
       current: 'weeding'
+    },
+    workers: {
+      gardeners: {
+        max: 1,
+        amount: 0,
+        salary: {
+          prev: 0,
+          current: 0
+        },
+        weedsPS: 0
+      }
     }
   }
 }
 
 const game = {
   load: () => JSON.parse(localStorage.getItem("save")) ?? defaultPlayer(),
-  save: (data) => localStorage.setItem("save", JSON.stringify(data))
+  save: (data) => localStorage.setItem("save", JSON.stringify(data)),
+  reset: () => localStorage.removeItem("save")
 }
 
 const store = new Vuex.Store({
@@ -54,6 +67,11 @@ const store = new Vuex.Store({
         electricity: state.bills.electricity
       }
     },
+    currentMaxGardeners: state => state.workers.gardeners.max,
+    currentGardeners: state => state.workers.gardeners.amount,
+    currentGardenerSalary: state => state.workers.gardeners.salary.current,
+    previousGardenerSalary: state => state.workers.gardeners.salary.prev,
+    totalGardenerWeedGainPerc: state => state.workers.gardeners.weedsPS,
     currentAction: state => state.action.current,
     costs: state => {
       return {
@@ -65,7 +83,8 @@ const store = new Vuex.Store({
       return {
         money: state.has.unlocked.money,
         lawnmowers: state.has.unlocked.lawnmowers,
-        jobs: state.has.unlocked.jobs
+        jobs: state.has.unlocked.jobs,
+        gardeners: state.has.unlocked.gardeners
       }
     }
   },
@@ -80,6 +99,9 @@ const store = new Vuex.Store({
       }
       if (state.weeds.current >= 40) {
         state.has.unlocked.jobs = true;
+      }
+      if (state.weeds.current >= 100) {
+        state.has.unlocked.gardeners = true;
       }
     },
     DECREMENT_WEEDS: (state, payload) => {
@@ -97,6 +119,9 @@ const store = new Vuex.Store({
     SET_SALARY: (state, payload) => {
       state.job.salary = payload;
     },
+    INCREMENT_GMAX: (state, payload) => state.workers.gardeners.max += payload,
+    DECREMENT_GMAX: (state, payload) => state.workers.gardeners.max -= payload,
+    SET_GMAX: (state, payload) => state.workers.gardeners.max = payload,
     CHANGE_LAWNMOWER_TYPE: (state, payload) => state.lawnmower.selected = payload,
     CHANGE_JOB: (state, payload) => state.job.selected = payload,
     INCREMENT_MONEY: (state, payload) => state.money.current += payload,
@@ -105,7 +130,17 @@ const store = new Vuex.Store({
     DECREMENT_MPS: (state, payload) => state.money.perSec -= payload,
     INCREMENT_BILLS: (state, payload) => state.bills.electricity += payload,
     DECREMENT_MONEY: (state, payload) => state.money.current -= payload,
-    SET_ACTION: (state, payload) => state.action.current = payload
+    SET_ACTION: (state, payload) => state.action.current = payload,
+    INCREMENT_GARDENERS: (state, payload) => state.workers.gardeners.amount += payload,
+    DECREMENT_GARDENERS: (state, payload) => state.workers.gardeners.amount -= payload,
+    SET_GARDENERS: (state, payload) => state.workers.gardeners.amount = payload,
+    INCREMENT_GWPS: (state, payload) => state.workers.gardeners.weedsPS += payload,
+    DECREMENT_GWPS: (state, payload) => state.workers.gardeners.weedsPS -= payload,
+    SET_GWPS: (state, payload) => state.workers.gardeners.weedsPS = payload,
+    INCREMENT_GSALARY: (state, payload) => state.workers.gardeners.salary.current += payload,
+    DECREMENT_GSALARY: (state, payload) => state.workers.gardeners.salary.current -= payload,
+    SET_GSALARY: (state, payload) => state.workers.gardeners.salary.current = payload,
+    SET_PREVGSALARY: (state, payload) => state.workers.gardeners.salary.prev = payload
   }
 });
 
@@ -114,6 +149,7 @@ const app = new Vue({
   store,
   data() {
     return {
+      ver: "P.O.C 2",
       intervals: {
         save: setInterval(() => this.save(store.state), 10000)
       },
@@ -158,7 +194,17 @@ const app = new Vue({
           },
           info: "As a garbage man, you inhale smelly items all day long, making you sick. This causes your weed pulling rate to decrease by 30%."
         }
+      },
+      gardeners: {
+        base: [30],
+        names: ["Sandy the weeder"]
       }
+    }
+  },
+  mounted() {
+    if (this.ver === "P.O.C 2" && this.gardenerAmt === undefined) {
+      game.reset();
+      alert("Due to the release of P.O.C 2, a forced hard reset occurred. I apologise for this! The next update (P.O.C 3) will be a complete refactoring of the code-base to make it more flexible for an extension of the gardener concept/mechanic. This mechanic will likely change plenty in the coming updates. Thankyou! -Jayman Matthews");
     }
   },
   computed: {
@@ -173,7 +219,12 @@ const app = new Vue({
       costs: "costs",
       salary: "currentSalary",
       bills: "currentBills",
-      action: "currentAction"
+      action: "currentAction",
+      gardenerAmt: "currentGardeners",
+      gardenerSalary: "currentGardenerSalary",
+      maxGardeners: "currentMaxGardeners",
+      prevGardenerSalary: "previousGardenerSalary",
+      gardenerWeedsPS: "totalGardenerWeedGainPerc"
     })
   },
   methods: {
@@ -192,18 +243,32 @@ const app = new Vue({
       changeLawnmower: "CHANGE_LAWNMOWER_TYPE",
       changeJob: "CHANGE_JOB",
       obtainElectBills: "INCREMENT_BILLS",
-      setAction: "SET_ACTION"
+      setAction: "SET_ACTION",
+      hireGardeners: "INCREMENT_GARDENERS",
+      fireGardeners: "DECREMENT_GARDENERS",
+      setGardeners: "SET_GARDENERS",
+      obtainGardenerWPS: "INCREMENT_GWPS",
+      deductGardenerWPS: "DECREMENT_GWPS",
+      setGardenerWPS: "SET_GWPS",
+      raiseGardenerSalary: "INCREMENT_GSALARY",
+      lowerGardenerSalary: "DECREMENT_GSALARY",
+      setGardenerSalary: "SET_GSALARY",
+      raiseGardenerMax: "INCREMENT_GMAX",
+      lowerGardenerMax: "DECREMENT_GMAX",
+      setGardenerMax: "SET_GMAX",
+      setPrevGardenerSalary: "SET_PREVGSALARY"
     }),
     load: game.load,
     save: game.save,
     tick(timeTaken) {
       const deltaTime = timeTaken - this.refs.time;
-      this.obtainWeeds(this.getTotalWeedGain() * (deltaTime / 1000));
+      this.obtainWeeds((this.action === 'weeding' ? this.getTotalWeedGain() : this.getTotalGardenerWeedGain()) * (deltaTime / 1000));
       this.obtainMoney(this.getTotalMoneyGain() * (deltaTime / 1000));
       this.refs.time = timeTaken;
       this.refs.req = requestAnimationFrame(this.tick);
     },
     formatWeedGain() { return this.getTotalWeedGain() >= 0 && this.getTotalWeedGain() < 0.1 ? this.getTotalWeedGain().toFixed(0) : this.getTotalWeedGain().toFixed(1); },
+    formatGardenerWeedGain() { return this.getTotalGardenerWeedGain() >= 0 && this.getTotalGardenerWeedGain() < 0.1 ? this.getTotalGardenerWeedGain().toFixed(0) : this.getTotalGardenerWeedGain().toFixed(1); },
     getTotalWeedGain() {
       if (this.action !== 'weeding') return 0;
 
@@ -214,7 +279,8 @@ const app = new Vue({
       else if (this.job === 'garbageMan') total = total * 0.7;
       return total;
     },
-    getTotalMoneyGain() { return (this.action === 'working' ? this.moneyPS : 0) - this.bills.electricity / 60 / 60; },
+    getTotalGardenerWeedGain() { return this.action === 'working' ? this.gardenerWeedsPS : 0; },
+    getTotalMoneyGain() { return (this.action === 'working' ? this.moneyPS : 0) - (this.action === 'working' ? this.prevGardenerSalary / 60 / 60 : 0) - (this.action === 'weeding' ? this.bills.electricity / 60 / 60 : 0); },
     pullWeed() {
       this.obtainWeeds(1);
     },
@@ -232,6 +298,17 @@ const app = new Vue({
     switchAction() {
       let actions = ['weeding', 'working']
       this.setAction((this.action == actions[0]) ? actions[1] : actions[0]);
+    },
+    hireGardener() {
+      this.hireGardeners(1);
+      this.setPrevGardenerSalary(this.gardeners.base[0]);
+      this.setGardenerSalary(this.prevGardenerSalary * 1.05);
+      this.obtainGardenerWPS(0.2);
+    },
+    raiseGardenerSalary() {
+      this.setPrevGardenerSalary(this.gardenerSalary);
+      this.setGardenerSalary(this.prevGardenerSalary * 1.05);
+      this.obtainGardenerWPS(0.2);
     }
   }
 })

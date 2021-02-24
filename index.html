@@ -18,9 +18,20 @@
       </div>
       <span class="inline" v-if="lawnmower !== 'none'"><br><br>Your lawnmower is pulling <b style="font-size: 24px;">{{ formatWeedGain() }}</b> weeds from the garden every second.<br></span>
       <span class="debt-info" v-if="money < 0">Your debt is demotivating, causing you to only mow 50% as many weeds.<br><br></span>
-      <span class="inline" v-if="lawnmower !== 'none'">You are paying ${{ bills.electricity.toFixed(2) }} per hour for electricity.<br><br></span>
-      <span class="inline" v-if="job !== 'none'">Your hourly salary while working is ${{ salary.toFixed(2) }}.<br><br></span>
-      <div v-if="action ==='weeding'"><button @click="pullWeed">Pull a weed!</button><br><br></div>
+      <div v-if="lawnmower !== 'none'">
+        <span class="inline" v-if="action === 'weeding'">You are paying ${{ bills.electricity.toFixed(2) }} per hour for electricity.<br><br></span>
+        <span class="inline" v-else>You are currently not paying any electricity bills.<br><br></span>
+      </div>
+      <div v-if="job !== 'none'">
+        <span class="inline" v-if="action === 'working'">Your hourly salary is currently ${{ salary.toFixed(2) }}.<br><br></span>
+        <span class="inline" v-else>You are currently not working.<br><br></span>
+      </div>
+      <span v-if="unlocked.gardeners && gardenerAmt > 0">Your {{ gardenerAmt }} gardeners are pulling a combined <b style="font-size: 24px;">{{ formatGardenerWeedGain() }}</b> weeds from the garden every second.<br></span>
+      <div v-if="unlocked.gardeners && gardenerAmt > 0">
+        <span v-if="action === 'working'">You are paying your {{ gardenerAmt }} gardeners ${{ prevGardenerSalary.toFixed(2) }} in total per hour.<br><br></span>
+        <span v-else>You are currently not paying your {{ gardenerAmt }} gardeners.<br><br></span>
+      </div>
+      <div v-if="action === 'weeding'"><button @click="pullWeed">Pull a weed!</button><br><br></div>
       <div v-if="unlocked.lawnmowers">
         <span v-if="lawnmower === 'none'">You should invest in a lawnmower! Here are the cheapest ones, take your pick.<br>Hover over each lawnmower to see their description.<br></span>
         <span v-if="lawnmower == 'corded' && action === 'weeding'">You're using the Corded <b>{{ lawnmowerType.corded.name }}</b>!<br></span>
@@ -32,9 +43,15 @@
         <span v-if="job === 'none'"><br>It's time to choose a job. Your weed pulling skills gave you two job offers! Choose wisely.<br>Hover over each job to see their description.<br></span>
         <span v-if="job === 'internship' && action === 'working'">You're working as an <b>{{ jobType.internship.position }}</b>.<br></span>
         <span v-if="job === 'garbageMan' && action === 'working'">You're working as a <b>{{ jobType.garbageMan.position }}</b>.<br></span>
+        <span v-if="gardenerAmt === 1 && action === 'working'"><b>{{ gardeners.names[0] }}</b> is gardening for you.<br></span>
         <button class="job-button job-type intern-button" v-if="job === 'none'" @click="chooseJob(jobType, 'internship', 0)"><center><span class="job-name-salary"><b>Work as an {{ jobType.internship.position }}!</b><br>Starting salary: ${{ jobType.internship.salary.base.toFixed(2) }}</span><span class="job-info">{{ jobType.internship.info }}</span></center></button>
         <button class="job-button job-type" v-if="job === 'none'" @click="chooseJob(jobType, 'garbageMan', 1)"><center><span class="job-name-salary"><b>Work as a {{ jobType.garbageMan.position }}!</b><br>Starting salary: ${{ jobType.garbageMan.salary.base.toFixed(2) }}</span><span class="job-info">{{ jobType.garbageMan.info }}</span></center></button><br>
         <button class="switch-button" v-if="job !== 'none'" @click="switchAction"><span v-if="action === 'weeding'"><b>Switch to working your job.</b></span><span v-else><b>Switch to weeding your garden.</b></span></button>
+      </div>
+      <div v-if="unlocked.gardeners && job !== 'none'">
+        <span v-if="gardenerAmt === 0"><br>It's time to get some help around here! Hire your first gardener.<br></span>
+        <span v-if="gardenerAmt !== 0" style="color: darkred;"><br><b>WARNING: Do not raise a gardener's salary too much if you can not sustain it. There is no way to fire gardeners in P.O.C 2!</b><br><br></span>
+        <button class="gardener-button" @click="gardenerAmt === 0 ? hireGardener() : raiseGardenerSalary()"><span v-if="gardenerAmt === 0">Hire {{ gardeners.names[0] }}.<br><br>Starting salary: ${{ gardeners.base[0].toFixed(2) }}</span><span v-else>Raise {{ gardeners.names[0] }}'s salary!<br><br>${{ prevGardenerSalary.toFixed(2) }}/hour => ${{ gardenerSalary.toFixed(2) }}/hour<br>+0.2 weeds pulled while working.</span></button>
       </div>
     </div>
   </body>
