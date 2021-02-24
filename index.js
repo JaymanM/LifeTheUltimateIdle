@@ -202,7 +202,7 @@ const app = new Vue({
     }
   },
   mounted() {
-    if (this.ver === "P.O.C 2" && this.gardenerAmt === undefined) {
+    if (this.gardenerAmt === undefined) {
       game.reset();
       alert("Due to the release of P.O.C 2, a forced hard reset occurred. I apologise for this! The next update (P.O.C 3) will be a complete refactoring of the code-base to make it more flexible for an extension of the gardener concept/mechanic. This mechanic will likely change plenty in the coming updates. Thankyou! -Jayman Matthews");
     }
